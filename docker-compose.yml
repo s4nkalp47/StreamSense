@@ -28,3 +28,4 @@ services:
       POSTGRES_USER: streamsense
       POSTGRES_PASSWORD: streamsense
       POSTGRES_DB: streamsense
+      POSTGRES_HOST_AUTH_METHOD: md5

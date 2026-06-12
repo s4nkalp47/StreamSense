@@ -14,8 +14,8 @@ await producer.send({
     messages: [
         {
             value: JSON.stringify({
-                level: "ERROR",
-                message: "Database connection failed",
+                level: "WARN",
+                message: "High memory usage detected: 99%",
                 service: "payment-service",
                 timestamp: new Date().toISOString()
 })
