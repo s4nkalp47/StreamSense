@@ -33,3 +33,18 @@ def get_alerts():
         for row in rows
     ]
     return {"alerts": alerts}
+
+@app.get("/alerts/{classification}")
+def getAlertsByClass(classification: str):
+    cursor.execute("SELECT id,service,message,timestamp FROM alerts WHERE classification = %s",(classification,))
+    rows = cursor.fetchall()
+    alerts = [
+        {
+         "id": row[0],
+         "service": row[1],
+         "message": row[2],
+         "timestamp": row[3]   
+        }
+        for row in rows
+    ]
+    return {"alerts": alerts}
