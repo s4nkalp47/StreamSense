@@ -48,3 +48,16 @@ def getAlertsByClass(classification: str):
         for row in rows
     ]
     return {"alerts": alerts}
+
+@app.get("/stats")
+def get_stats():
+    cursor.execute("SELECT classification, COUNT(*) FROM alerts GROUP BY classification")
+    rows = cursor.fetchall()
+    stats = [
+        {
+        "classification": row[0],
+        "count": row[1]
+        }
+        for row in rows
+    ]
+    return {"stats": stats}
