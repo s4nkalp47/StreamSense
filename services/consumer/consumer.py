@@ -26,7 +26,7 @@ client = Groq(api_key=os.getenv('GROQ_API_KEY'))
 
 consumer = KafkaConsumer(
     'logs',
-    bootstrap_servers='localhost:9092',
+    bootstrap_servers='kafka:9092',
     auto_offset_reset='earliest',
     group_id='log-consumer-group',
     api_version=(0, 10, 2)
