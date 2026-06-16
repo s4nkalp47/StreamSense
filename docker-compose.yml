@@ -42,6 +42,8 @@ services:
   
   consumer:
     build: ./services/consumer
+    env_file:
+      - .env
     volumes:
     - ./services/consumer:/app
     depends_on:
@@ -50,6 +52,8 @@ services:
   
   api:
     build: ./services/api
+    env_file:
+      - .env
     ports:
       - "8000:8000"
     volumes:
