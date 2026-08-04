@@ -3,6 +3,7 @@ import json
 import psycopg2
 from kafka import KafkaConsumer
 from groq import Groq
+import redis
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,6 +15,8 @@ conn = psycopg2.connect(
     password=os.getenv('DB_PASSWORD')
 )
 cursor = conn.cursor()
+
+r = redis.Redis(host='redis',port=6379)
 
 cursor.execute("CREATE TABLE IF NOT EXISTS alerts(" \
 "id SERIAL PRIMARY KEY," \
@@ -49,5 +52,13 @@ for msg in consumer:
         "INSERT INTO alerts (service,message,classification,timestamp) VALUES (%s,%s,%s,%s)", (log['service'], log['message'], classification, log['timestamp'])
     )
     conn.commit()
+
+    r.publish('alerts',json.dumps({
+        'service' : log['service'],
+        'message' : log['message'],
+        'classification' : classification,
+        'timestamp' : log['timestamp']
+    }))
+
     print(f"[{log['service']}] {log['message']} → {classification}")
 
