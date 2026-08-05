@@ -17,6 +17,7 @@ __pycache__/
 
 # Docker
 .dockerignore
+*.log
 
 # OS
 .DS_Store

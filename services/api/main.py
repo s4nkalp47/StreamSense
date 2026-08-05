@@ -1,10 +1,13 @@
 import os
 import psycopg2
 from fastapi import FastAPI
+import redis
+from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 
 load_dotenv()
 
+r = redis.Redis(host='redis',port=6379)
 
 conn = psycopg2.connect(
     host=os.getenv('DB_HOST'),
@@ -61,3 +64,13 @@ def get_stats():
         for row in rows
     ]
     return {"stats": stats}
+
+@app.get("/stream")
+def stream_alerts():
+    def event_stream():
+        pubsub = r.pubsub()
+        pubsub.subscribe('alerts')
+        for message in pubsub.listen():
+            if message['type'] == 'message':
+                yield f"data: {message['data'].decode('utf-8')}\n\n"
+    return StreamingResponse(event_stream(), media_type="text/event-stream")
