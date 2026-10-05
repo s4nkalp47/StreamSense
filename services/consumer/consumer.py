@@ -45,7 +45,7 @@ for msg in consumer:
                 "content": f"You are a log classifier. Classify the severity of this log into exactly one of these three categories: CRITICAL, WARNING, or NORMAL. Do not use any other words. Do not explain. Reply with one word only.\n\nLog: {json.dumps(log_for_classification)}"
             }
         ],
-        model="llama-3.1-8b-instant"
+        model="openai/gpt-oss-120b"
     )
     classification = chat_completion.choices[0].message.content
     cursor.execute(

@@ -8,7 +8,7 @@ function getRowColor(classification) {
 }
 
 
-function liveFeed(){
+function LiveFeed(){
 
     const [alerts, setAlerts] = useState([])
 
@@ -57,3 +57,4 @@ function liveFeed(){
     )
 }
 
+export default LiveFeed
