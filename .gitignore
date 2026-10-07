@@ -15,9 +15,6 @@ __pycache__/
 # Logs
 *.log
 
-# Docker
-.dockerignore
-*.log
 
 # OS
 .DS_Store
@@ -25,3 +22,5 @@ Thumbs.db
 
 #Claude
 .claude/settings.local.json
+CLAUDE.md
+CONTEXT.md
