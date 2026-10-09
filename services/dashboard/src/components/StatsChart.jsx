@@ -14,7 +14,7 @@ function StatsChart(){
     return(
         <div>
             <h2>Alert Counts</h2>
-            <BarChart width={400} height={300} datat = {stats}>
+            <BarChart width={400} height={300} data = {stats}>
                 <XAxis dataKey = "classification" />
                 <YAxis />
                 <Tooltip />
