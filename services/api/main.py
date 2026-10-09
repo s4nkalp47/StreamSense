@@ -3,6 +3,7 @@ import psycopg2
 from fastapi import FastAPI
 import redis
 from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,6 +20,11 @@ conn = psycopg2.connect(
 cursor = conn.cursor()
 
 app = FastAPI()
+app.add_middleware(CORSMiddleware,
+                   allow_origins=["http://localhost:5173"],
+                   allow_methods=["GET"],
+                   allow_headers=["*"],
+)
 
 
 @app.get("/alerts")
