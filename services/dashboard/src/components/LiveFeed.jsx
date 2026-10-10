@@ -23,13 +23,13 @@ function LiveFeed(){
 
         source.onerror = () => {
             console.log('SSE Connection Lost')
-            source.close()
         }
 
         return () => source.close()
 
     },[])
-
+  
+    
     return(
         <div>
             <h2>Live Feed</h2>
