@@ -36,29 +36,33 @@ consumer = KafkaConsumer(
 )
 
 for msg in consumer:
-    log = json.loads(msg.value.decode('utf-8'))
-    log_for_classification = {k: v for k, v in log.items() if k != 'level'}
-    chat_completion = client.chat.completions.create(
-        messages=[
-            {
-                "role": "user",
-                "content": f"You are a log classifier. Classify the severity of this log into exactly one of these three categories: CRITICAL, WARNING, or NORMAL. Do not use any other words. Do not explain. Reply with one word only.\n\nLog: {json.dumps(log_for_classification)}"
-            }
-        ],
-        model="openai/gpt-oss-120b"
-    )
-    classification = chat_completion.choices[0].message.content
-    cursor.execute(
-        "INSERT INTO alerts (service,message,classification,timestamp) VALUES (%s,%s,%s,%s)", (log['service'], log['message'], classification, log['timestamp'])
-    )
-    conn.commit()
+    try:
+        log = json.loads(msg.value.decode('utf-8'))
+        log_for_classification = {k: v for k, v in log.items() if k != 'level'}
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"You are a log classifier. Classify the severity of this log into exactly one of these three categories: CRITICAL, WARNING, or NORMAL. Do not use any other words. Do not explain. Reply with one word only.\n\nLog: {json.dumps(log_for_classification)}"
+                }
+            ],
+            model="openai/gpt-oss-120b"
+        )
+        classification = chat_completion.choices[0].message.content
+        cursor.execute(
+            "INSERT INTO alerts (service,message,classification,timestamp) VALUES (%s,%s,%s,%s)", (log['service'], log['message'], classification, log['timestamp'])
+        )
+        conn.commit()
 
-    r.publish('alerts',json.dumps({
-        'service' : log['service'],
-        'message' : log['message'],
-        'classification' : classification,
-        'timestamp' : log['timestamp']
-    }))
+        r.publish('alerts',json.dumps({
+            'service' : log['service'],
+            'message' : log['message'],
+            'classification' : classification,
+            'timestamp' : log['timestamp']
+        }))
 
-    print(f"[{log['service']}] {log['message']} → {classification}")
+        print(f"[{log['service']}] {log['message']} → {classification}")
+    except Exception as e:
+        conn.rollback()
+        print(f"Failed to process message at offset {msg.offset}: {e}")
 
