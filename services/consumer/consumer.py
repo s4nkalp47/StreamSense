@@ -35,6 +35,19 @@ consumer = KafkaConsumer(
     api_version=(0, 10, 2)
 )
 
+VALID_CLASSIFICATIONS = ("CRITICAL", "WARNING", "NORMAL")
+
+def normalize_classification(reply):
+    cleaned = (reply or "").strip().upper().strip(".!")
+    if cleaned in VALID_CLASSIFICATIONS:
+        return cleaned
+    for label in VALID_CLASSIFICATIONS:
+        if label in cleaned:
+            return label
+    print(f"Unexpected classification {reply!r}, defaulting to WARNING")
+    return "WARNING"
+
+
 for msg in consumer:
     try:
         log = json.loads(msg.value.decode('utf-8'))
@@ -48,7 +61,7 @@ for msg in consumer:
             ],
             model="openai/gpt-oss-120b"
         )
-        classification = chat_completion.choices[0].message.content
+        classification = normalize_classification(chat_completion.choices[0].message.content)
         cursor.execute(
             "INSERT INTO alerts (service,message,classification,timestamp) VALUES (%s,%s,%s,%s)", (log['service'], log['message'], classification, log['timestamp'])
         )
