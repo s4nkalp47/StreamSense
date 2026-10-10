@@ -17,8 +17,6 @@ conn = psycopg2.connect(
     password=os.getenv('DB_PASSWORD')
 )
 
-cursor = conn.cursor()
-
 app = FastAPI()
 app.add_middleware(CORSMiddleware,
                    allow_origins=["http://localhost:5173"],
@@ -29,8 +27,9 @@ app.add_middleware(CORSMiddleware,
 
 @app.get("/alerts")
 def get_alerts():
-    cursor.execute("SELECT id, service, message, classification, timestamp FROM alerts")
-    rows = cursor.fetchall()
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT id, service, message, classification, timestamp FROM alerts")
+        rows = cursor.fetchall()
     alerts = [
         {
             "id": row[0],
@@ -45,8 +44,9 @@ def get_alerts():
 
 @app.get("/alerts/{classification}")
 def getAlertsByClass(classification: str):
-    cursor.execute("SELECT id,service,message,timestamp FROM alerts WHERE classification = %s",(classification,))
-    rows = cursor.fetchall()
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT id,service,message,timestamp FROM alerts WHERE classification = %s",(classification,))
+        rows = cursor.fetchall()
     alerts = [
         {
          "id": row[0],
@@ -60,8 +60,9 @@ def getAlertsByClass(classification: str):
 
 @app.get("/stats")
 def get_stats():
-    cursor.execute("SELECT classification, COUNT(*) FROM alerts GROUP BY classification")
-    rows = cursor.fetchall()
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT classification, COUNT(*) FROM alerts GROUP BY classification")
+        rows = cursor.fetchall()
     stats = [
         {
         "classification": row[0],
